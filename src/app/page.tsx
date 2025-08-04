@@ -1,28 +1,14 @@
 'use client'
 
-import { useAuth } from '../context/AuthContext'
-import LoginButton from '../components/LoginButton'
-import UserInfo from '../components/UserInfo'
-import Link from 'next/link'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
-const Home = () => {
-  const { user } = useAuth()
+export default function Home() {
+  const router = useRouter()
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-      <h1 className="text-3xl font-bold">Welcome to Yapp!</h1>
-      {user ? (
-        <>
-          <UserInfo />
-          <Link href="/dashboard" className="text-blue-600 underline">
-            Go to Dashboard
-          </Link>
-        </>
-      ) : (
-        <LoginButton />
-      )}
-    </div>
-  )
+  useEffect(() => {
+    router.push('/dashboard')
+  }, [])
+
+  return null
 }
-
-export default Home
