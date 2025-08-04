@@ -5,7 +5,7 @@ import LoginButton from '../components/LoginButton'
 import UserInfo from '../components/UserInfo'
 import Link from 'next/link'
 
-export default function Home() {
+const Home = () => {
   const { user } = useAuth()
 
   return (
@@ -14,7 +14,9 @@ export default function Home() {
       {user ? (
         <>
           <UserInfo />
-          <Link href="/dashboard" className="text-blue-600 underline">Go to Dashboard</Link>
+          <Link href="/dashboard" className="text-blue-600 underline">
+            Go to Dashboard
+          </Link>
         </>
       ) : (
         <LoginButton />
@@ -22,3 +24,5 @@ export default function Home() {
     </div>
   )
 }
+
+export default Home
