@@ -2,56 +2,57 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/context/AuthContext'
-
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function SignUpPage() {
   const router = useRouter()
-  const { user, isLoading, signInWithGoogle } = useAuth()
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
 
   useEffect(() => {
-    if (!isLoading && user) {
-      router.push('/dashboard')
+    let timer: NodeJS.Timeout
+    if (cooldown > 0) {
+      timer = setTimeout(() => setCooldown(cooldown - 1), 1000)
     }
-  }, [user, isLoading])
+    return () => clearTimeout(timer)
+  }, [cooldown])
 
-  const handleEmailSignUp = async () => {
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) setErrorMsg(error.message)
-    else setErrorMsg(null)
+  const handleSignUp = async () => {
+    setLoading(true)
+    setError(null)
+    setMessage('')
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+
+    if (error) {
+      setError(error.message)
+    } else {
+      setMessage('✅ Confirmation email sent! Please check your inbox.')
+      setCooldown(60) 
+    }
+
+    setLoading(false)
   }
-
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Sign up for Yapp</CardTitle>
+          <CardTitle className="text-center text-2xl">Create an account</CardTitle>
         </CardHeader>
+
         <CardContent className="space-y-4">
-          <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
-            Continue with Google
-          </Button>
-
-          <Separator />
-
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -74,17 +75,29 @@ export default function SignUpPage() {
             />
           </div>
 
-          {errorMsg && <p className="text-sm text-red-500">{errorMsg}</p>}
+          {message && <p className="text-sm text-green-600">{message}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <Button className="w-full" onClick={handleEmailSignUp}>
-            Sign Up
+          <Button
+            className="w-full"
+            onClick={handleSignUp}
+            disabled={loading || cooldown > 0}
+          >
+            {loading
+              ? 'Signing up...'
+              : cooldown > 0
+              ? `Please wait ${cooldown}s to try again`
+              : 'Sign up'}
           </Button>
 
-          <p className="text-sm text-center">
+          <p className="text-sm text-center mt-2">
             Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:underline">
+            <span
+              className="text-blue-600 hover:underline cursor-pointer"
+              onClick={() => router.push('/login')}
+            >
               Log in
-            </Link>
+            </span>
           </p>
         </CardContent>
       </Card>
