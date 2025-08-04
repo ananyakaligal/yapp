@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/context/AuthContext'
-import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/context/AuthContext'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const router = useRouter()
   const { user, isLoading, signInWithGoogle } = useAuth()
 
@@ -31,8 +31,8 @@ export default function LoginPage() {
     }
   }, [user, isLoading])
 
-  const handleEmailLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const handleEmailSignUp = async () => {
+    const { error } = await supabase.auth.signUp({ email, password })
     if (error) setErrorMsg(error.message)
     else setErrorMsg(null)
   }
@@ -43,7 +43,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Log in to Yapp</CardTitle>
+          <CardTitle className="text-center text-2xl">Sign up for Yapp</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
@@ -76,14 +76,14 @@ export default function LoginPage() {
 
           {errorMsg && <p className="text-sm text-red-500">{errorMsg}</p>}
 
-          <Button className="w-full" onClick={handleEmailLogin}>
-            Login
+          <Button className="w-full" onClick={handleEmailSignUp}>
+            Sign Up
           </Button>
 
           <p className="text-sm text-center">
-            Don’t have an account?{' '}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="text-blue-600 hover:underline">
+              Log in
             </Link>
           </p>
         </CardContent>
